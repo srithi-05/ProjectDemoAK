@@ -1,0 +1,268 @@
+KUBERNETES USING MINIKUBE
+
+
+1. open powershell
+2. minikube start
+3. kubectl create deployment mynginx --image=nginx
+4. kubectl get pods 
+5. kubectl expose deployment mynginx --type=NodePort --port=80 --target-port=80
+6. kubectl scale deployment mynginx --replicas=4
+7. kubectl port-forward svc/mynginx 8081:80
+
+OPEN http://localhost:8081
+kubectl describe pods
+
+8. kubectl delete deployment mynginx
+9. kubectl delete service mynginx
+10. minikube stop
+
+
+AGIOS
+
+1. docker pull jasonrivers/nagios:latest
+2. docker run --name nagiosdemo -p 8888:80 jasonrivers/nagios:latest
+
+OPEN http://localhost:8888
+
+Login:
+username: nagiosadmin
+password: nagios
+
+3. docker stop nagiosdemo
+
+
+AWS
+
+sudo apt update
+sudo apt-get install docker.io
+sudo apt install git
+Sudo apt install nano
+git clone <copied http url>
+cd AWS (Navigate to folder in repo)
+sudo docker build –t mywebapp 
+sudo docker run –d –p 80:80 mywebapp
+
+Maven java
+org.apache.maven
+maven-archetype-quickstart 1.4
+Users/name/eclipse-workspace
+
+maven-archetype-webapp 1.4
+
+
+
+<tomcat-users>
+<role rolename="manager-script"/>
+<user username="admin" password="1234" roles="manager-script"/>
+</tomcat-users>
+
+FROM tomcat:9.0
+RUN rm -rf /usr/local/tomcat/webapps/*
+COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
+CMD ["catalina.sh","run"]
+
+pipeline{
+    agent any
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/nikhileshnilagiri/maven-java-app'
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                bat "mvn clean"
+            }
+        }
+
+        stage('Install') {
+            steps {
+                bat "mvn install"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat "mvn test"
+            }
+        }
+    }
+    post{
+        success{
+            emailext body: 'This is a sample to test through the pipeline', subject: 'Build Success', to: 'nikhileshnilagiri2006@gmail.com'
+        }
+        failure{
+            emailext body: 'This is a sample to test through the pipeline', subject: 'Build failure', to: 'nikhileshnilagiri2006@gmail.com'
+        }
+    }
+}
+
+
+
+
+
+pipeline{
+    agent any
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/nikhileshnilagiri/maven-web-app'
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                bat "mvn clean"
+            }
+        }
+
+        stage('Install') {
+            steps {
+                bat "mvn install"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat "mvn test"
+            }
+        }
+        stage('deployment'){
+            steps{
+                deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: '92ea1533-cb15-4f40-a28b-ddcd2418727f', path: '', url: 'http://localhost:8081/')], contextPath: null, war: '**/*.war'
+            }
+        }
+    }
+    post{
+        success{
+            emailext body: 'This is a sample to test through the pipeline', subject: 'Build Success', to: 'nikhileshnilagiri2006@gmail.com'
+        }
+        failure{
+            emailext body: 'This is a sample to test through the pipeline', subject: 'Build failure', to: 'nikhileshnilagiri2006@gmail.com'
+        }
+    }
+}
+
+pipeline{
+    agent any
+    tools{
+        maven 'MAVEN-HOME'
+    }
+    stages{
+        stage('git repo and clean'){
+            steps{
+                //bat "rmdir /s /q maven-java-project"
+                bat "git clone https://github.com/srithi-05/maven-java-project.git"
+                bat "mvn clean -f maven-java-project"
+            }
+        }
+        stage('install'){
+            steps{
+                bat "mvn install -f maven-java-project"
+            }
+        }
+        stage('test'){
+            steps{
+                bat "mvn test -f maven-java-project"
+            }
+        }
+        stage('package'){
+            steps{
+                bat "mvn package -f maven-java-project"
+            }
+        }
+    }
+}
+
+
+
+minikube start --driver=docker
+kubectl create deployment mynginx --image=nginx
+kubectl set image deployment/myngnix nginx=nginx:latest
+kubectl get deployments
+kubectl expose deployment mynginx --type=NodePort --port=80 --target-port=80
+kubectl scale deployment mynginx --replicas=4
+kubectl port-forward svc/mynginx 8081:80
+if Error:
+minikube tunnel
+minikube service mynginx –url
+kubectl delete deployment mynginx
+kubectl delete service mynginx
+
+docker pull jasonrivers/nagios:latest
+
+
+version: "3.8"
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: wp_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-rootpass}"
+      MYSQL_DATABASE: "${DB_NAME:-wordpress}"
+      MYSQL_USER: "${DB_USER:-wpuser}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-wppass}"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wpnet
+
+  wordpress:
+    image: wordpress:6.4-apache
+    container_name: wp_app
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: "${DB_USER:-wpuser}"
+      WORDPRESS_DB_PASSWORD: "${DB_PASSWORD:-wppass}"
+      WORDPRESS_DB_NAME: "${DB_NAME:-wordpress}"
+      WORDPRESS_TABLE_PREFIX: "wp_"
+    volumes:
+      - wp_data:/var/www/html
+    networks:
+      - wpnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: wp_phpmyadmin
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: "${DB_USER:-wpuser}"
+      PMA_PASSWORD: "${DB_PASSWORD:-wppass}"
+    networks:
+      - wpnet
+
+volumes:
+  db_data:
+  wp_data:
+
+networks:
+  wpnet:
+    driver: bridge
+
+
+-------------mk dir-------------
+mkdir wp-docker && cd wp-docker
+nano docker-compose.yaml
+-----------version---------------
+docker --version
+docker compose version
+docker compose ps
+docker compose logs -f wordpress
+docker compose logs -f db
+docker compose down
+docker compose down -v
+docker compose pull
+docker compose up -d --force-recreate --build
