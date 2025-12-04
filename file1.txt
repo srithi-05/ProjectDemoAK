@@ -1,0 +1,665 @@
+email password:qooo vcwz ssbn xpgu
+
+==============================
+ GLOBAL GIT CONFIGURATION
+==============================
+
+# Set Git username
+git config --global user.name "Your Name"
+
+# Set Git email
+git config --global user.email "you@example.com"
+
+# Check config
+git config --global --list
+
+==============================
+ CONNECT LOCAL → REMOTE
+==============================
+
+# Initialize Git in local folder
+git init
+
+# Add remote repo
+git remote add origin https://github.com/user/repo.git
+
+# Verify remote
+git remote -v
+
+# Push first commit to GitHub
+git push -u origin main
+
+==============================
+ PUSH TO GITHUB PUBLIC REPO
+==============================
+
+git add .
+git commit -m "msg"
+git push origin branch-name
+
+==============================
+ FIX: NON-FAST-FORWARD ERROR
+==============================
+
+# Remote has new commits — fix with rebase
+git pull --rebase origin <branch>
+git push origin <branch>
+
+==============================
+ PUSH FEATURE BRANCH SAFELY
+==============================
+
+# Create and switch
+git checkout -b feature/feat-1
+
+# Push without affecting main
+git push origin feature/feat-1
+
+
+==============================
+ FETCH LATEST REMOTE CHANGES
+==============================
+
+git fetch origin
+git checkout new-branch-name   # switch to any fetched branch
+
+==============================
+ AVOID MERGE CONFLICTS WHEN PULLING
+==============================
+
+git stash                    # save your changes
+git pull --rebase origin main
+git stash pop                # reapply your changes
+
+==============================
+ REMOVE SENSITIVE FILES
+==============================
+
+git rm --cached path/to/file
+git commit -m "Remove sensitive file"
+git push origin main
+
+# (If history contains secrets)
+git filter-branch --force --index-filter \
+"git rm --cached --ignore-unmatch path/to/file" \
+--prune-empty --tag-name-filter cat -- --all
+
+git push --force
+
+==============================
+ UPDATE FEATURE BRANCH WITH MAIN
+==============================
+
+# Option 1: Rebase
+git checkout feature/your-feature
+git fetch origin
+git rebase origin/main
+
+# Option 2: Merge
+git merge origin/main
+
+==============================
+ CHANGE REMOTE REPOSITORY
+==============================
+
+# Replace old remote
+git remote set-url origin https://github.com/new/repo.git
+
+# Push to new repo
+git push -u origin branch-name
+
+==============================
+ UPDATE LOCAL BRANCH WITHOUT LOSING WORK
+==============================
+
+git stash
+git pull --rebase origin branch-name
+git stash pop
+
+==============================
+ RESOLVE MERGE CONFLICTS
+==============================
+
+git pull origin branch-name
+
+# Resolve conflict markers in files:
+# <<<<<<< HEAD
+# =======
+# >>>>>>> remote
+
+git add .
+git commit
+
+==============================
+ DELETE REMOTE BRANCH
+==============================
+
+git push origin --delete feature/branch-name
+
+==============================
+ DELETE LOCAL BRANCH
+==============================
+
+git branch -d branch-name         # safe delete
+git branch -D branch-name         # force delete
+
+==============================
+ CREATE & SWITCH BRANCHES
+==============================
+
+git branch                         # list
+git checkout -b feature/login      # create + switch
+git checkout main                  # switch
+
+==============================
+ DISCARD CHANGES / UNSTAGE
+==============================
+
+# Discard modified file
+git checkout -- file.txt
+
+# Unstage a file
+git reset HEAD file.txt
+
+# Undo last commit (keep changes)
+git reset --soft HEAD~1
+
+# Undo last commit (discard changes)
+git reset --hard HEAD~1
+
+==============================
+ GIT FORK WORKFLOW
+==============================
+
+# Clone your fork
+git clone https://github.com/yourname/repo.git
+
+# Add original (upstream) repo
+git remote add upstream https://github.com/original/repo.git
+
+# Fetch updates from upstream
+git fetch upstream
+
+# Update your main branch
+git checkout main
+git merge upstream/main
+
+# Push to your fork
+git push origin main
+
+==============================
+ CREATE A PULL REQUEST (PR)
+==============================
+
+# Push your feature branch
+git push origin feature/my-feature
+
+# Go to GitHub → Open Pull Request
+
+
+
+
+
+
+==============================
+ STEP 1: Pull Ubuntu Image
+==============================
+
+docker pull ubuntu:latest
+
+==============================
+ STEP 2: Run Container
+==============================
+
+docker run -it -d --name myubuntu -p 3000:80 ubuntu
+docker exec -it myubuntu bash
+
+==============================
+ STEP 3: Install NGINX
+==============================
+
+apt update
+apt install nginx -y
+service nginx start
+
+==============================
+ STEP 4: Modify index.html
+==============================
+
+cd /var/www/html
+nano index.html   # Edit <h1> tag content
+
+==============================
+ STEP 5: View Page in Browser
+==============================
+
+Open: http://localhost:3000
+
+2️⃣ DOCKER IMAGE CREATION
+
+# STEP 1: Create a container
+docker run -it --name imgsource ubuntu
+
+# STEP 2: After modifying the container
+docker commit imgsource myubuntuimage:v1
+
+# STEP 3: Create Dockerfile
+touch Dockerfile
+nano Dockerfile
+
+FROM ubuntu
+RUN apt update && apt install nginx -y
+COPY index.html /var/www/html/index.html
+CMD ["nginx", "-g", "daemon off;"]
+
+# STEP 4: Build image
+docker build -t mynginximage:v1 .
+
+# STEP 5: Check images
+docker images
+
+3️⃣ DOCKER COMPOSE (RUNNING TWO SERVERS)
+
+==============================
+ STEP 1: docker-compose.yml
+==============================
+
+version: '3'
+services:
+  server1:
+    image: nginx
+    ports:
+      - "3001:80"
+
+  server2:
+    image: nginx
+    ports:
+      - "3002:80"
+
+==============================
+ STEP 2: Start Servers
+==============================
+
+docker-compose up -d
+
+==============================
+ STEP 3: Stop Containers
+==============================
+
+docker-compose down
+
+==============================
+ STEP 4: View in Browser
+==============================
+
+http://localhost:3001
+http://localhost:3002
+
+4️⃣ WORDPRESS + MYSQL USING COMPOSE
+
+==============================
+ STEP 1: docker-compose.yml
+==============================
+
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wordpress
+
+volumes:
+  db_data:
+
+==============================
+ STEP 2: Start Services
+==============================
+
+docker-compose up -d
+
+==============================
+ STEP 3: Access WordPress
+==============================
+
+http://localhost:8080
+
+5️⃣ FLASK APP (Dockerfile + Compose)
+
+STEP 1: Create folder
+--------------------
+mkdir flask-app
+cd flask-app
+--------------------
+STEP 2: Create app.py
+--------------------
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "<h1>Hello from Docker + Flask!</h1>"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+----------------------
+Create Dockerfile
+-----------------------
+
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+
+----------------------
+flask
+----------------------
+version: '3'
+services:
+  flaskapp:
+    build: .
+    ports:
+      - "5000:5000"
+---------------------
+docker compose up --build
+------------------------
+http://localhost:5000
+
+
+
+
+
+
+Jenkins SE Lab – Complete Tasks
+1. Initial Setup (Tools & Configuration)
+Configure JDK
+Manage Jenkins → Global Tool Configuration → JDK → Add JDK
+Name: JDK11 (example)
+Path: /usr/lib/jvm/java-11-openjdk (or your system path)
+Configure Maven
+Manage Jenkins → Global Tool Configuration → Maven → Add Maven
+Name: Maven3
+Install automatically or provide path
+Configure Git
+Manage Jenkins → Global Tool Configuration → Git → Add Git
+Path: /usr/bin/git (or system path)
+Configure Email Notification
+Manage Jenkins → Configure System → Email Notification
+SMTP server: smtp.gmail.com
+Port: 465/587
+Add credentials (email/password or app password)
+Test configuration
+Configure GitHub Credentials
+Manage Jenkins → Credentials → Add → Username + Personal Access Token
+2. Freestyle Job
+Steps:
+New Item → Freestyle_Maven_Job → Freestyle project → OK
+Source Code Management → Git
+Repo URL: https://github.com/<username>/<repo>.git
+Credentials: github-creds
+Build Step → Invoke top-level Maven targets
+Goals: clean install
+Post-build Actions
+Archive artifacts → target/*.jar
+Email Notification → On failure/success → enter your email
+Save → Build Now → Check Console Output
+3. 2-Stage Pipeline (Build → Deploy)
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'This is Build stage'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'This is Deploy stage'
+            }
+        }
+    }
+}
+Steps:
+New Item → 2_Stage_Pipeline → Pipeline → OK
+Pipeline Definition → Pipeline Script (inline) → Paste above
+Save → Build Now → Check Stage View
+4. 3-Stage Pipeline (Build → Test → Deploy)
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'This is Build stage'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'This is Test stage'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'This is Deploy stage'
+            }
+        }
+    }
+}
+Steps:
+New Item → 3_Stage_Pipeline → Pipeline → OK
+Pipeline Script → Paste above
+Save → Build Now → Check Stage View
+5. Scripted Pipeline (Build → Test → Deploy)
+node {
+    stage('Build') {
+        echo 'This is Build stage'
+    }
+    stage('Test') {
+        echo 'This is Test stage'
+    }
+    stage('Deploy') {
+        echo 'This is Deploy stage'
+    }
+}
+Steps:
+New Item → Scripted_Pipeline → Pipeline → OK
+Pipeline Script → Paste above
+Save → Build Now → Check Console Output
+6. GitHub Webhook Integration
+Go to GitHub repo → Settings → Webhooks → Add webhook
+Payload URL: http://<jenkins-ip>:8080/github-webhook/
+Content type: application/json
+Trigger: Push events
+Save → Make a commit → Jenkins job triggers automatically
+7. Email Notification Test
+Ensure email is configured in Jenkins system settings
+Add Email notification in any job or pipeline post section
+Trigger job → verify email on success/failure
+If you want, I can combine all these pipelines and freestyle steps into a single, ready-to-copy “SE Lab Cheat Sheet” in the exact order you should perform them, so you can just follow it during the lab.
+Do you want me to do that?
+
+
+
+
+Perfect! Let’s forget all the theory and do a **step-by-step, practical “do this, see this” guide** for **Minikube + Nagios** so you can literally follow commands and be exam-ready.
+
+I’ll assume you are **starting from scratch** on a Windows or Mac machine with Docker installed.
+
+---
+
+# **PART 1: MINIKUBE (Kubernetes)**
+
+### **Step 0: Make sure Docker is running**
+
+```bash
+docker --version
+docker ps
+```
+
+* If Docker is running, you will see its version and running containers.
+
+---
+
+### **Step 1: Start Minikube**
+
+```bash
+minikube start --driver=docker
+```
+
+* This starts a **mini Kubernetes cluster** on your laptop.
+* Verify it’s running:
+
+```bash
+minikube status
+```
+
+* Optional: open dashboard:
+
+```bash
+minikube dashboard
+```
+
+* You will see a visual interface showing your cluster.
+
+---
+
+### **Step 2: Deploy Nginx**
+
+```bash
+kubectl create deployment mynginx --image=nginx
+```
+
+* Checks if deployment is created:
+
+```bash
+kubectl get deployments
+kubectl get pods
+```
+
+---
+
+### **Step 3: Expose Nginx to browser**
+
+```bash
+kubectl expose deployment mynginx --type=NodePort --port=80
+```
+
+* Find URL:
+
+```bash
+minikube service mynginx --url
+```
+
+* Open URL in browser → You should see Nginx welcome page.
+
+---
+
+### **Step 4: Scale Deployment**
+
+```bash
+kubectl scale deployment mynginx --replicas=4
+kubectl get pods
+```
+
+* Now you have **4 pods** running Nginx.
+
+---
+
+### **Step 5: Stop and Clean Up**
+
+```bash
+kubectl delete deployment mynginx
+kubectl delete service mynginx
+minikube stop
+minikube delete
+```
+
+* This deletes everything and stops Minikube.
+
+---
+
+# **PART 2: NAGIOS (Monitoring tool)**
+
+### **Step 1: Pull Nagios Docker image**
+
+```bash
+docker pull jasonrivers/nagios:latest
+```
+
+---
+
+### **Step 2: Run Nagios**
+
+```bash
+docker run --name nagiosdemo -p 8888:80 jasonrivers/nagios:latest
+```
+
+* Open browser: `http://localhost:8888`
+* Login:
+
+  * Username: `nagiosadmin`
+  * Password: `nagios`
+
+---
+
+### **Step 3: Explore Dashboard**
+
+* Click **Hosts** → See monitored systems
+* Click **Services** → See CPU, memory, network
+* Click **Alerts** → Notifications about issues
+
+---
+
+### **Step 4: Stop & Remove Nagios**
+
+```bash
+docker stop nagiosdemo
+docker rm nagiosdemo
+docker rmi jasonrivers/nagios:latest
+```
+
+---
+
+# **EXAM TIPS**
+
+1. **Minikube:**
+
+   * Start → Deploy → Scale → Expose → Access → Delete.
+   * Practice **each command once**, remember order.
+
+2. **Nagios:**
+
+   * Pull → Run → Login → Explore → Stop.
+   * Remember ports: `8888` for web interface.
+
+3. **Common Errors:**
+
+   * Pod stuck → `kubectl describe pod <podname>` / `kubectl logs <podname>`
+   * Nagios web error → Check container: `docker ps` / `docker logs nagiosdemo`
+
+---
+
+If you want, I can make a **“Copy-Paste Exam Command Sheet”** where you just **copy each command in order** for **Minikube and Nagios**, with **expected outputs**, so you can literally finish the lab in **10–15 minutes** without thinking.
+
+Do you want me to make that?
